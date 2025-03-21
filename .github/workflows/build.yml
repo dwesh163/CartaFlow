@@ -46,19 +46,16 @@ jobs:
 
             - name: Extract Docker metadata
               id: meta
-              uses: docker/metadata-action@v5
-              with:
-                  images: ${{ github.repository_owner }}/${{ github.repository }}
-                  tags: |
-                      latest,
-                      ${{ needs.get-version.outputs.version }}
+              run: |
+                  repo_lower=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+                  echo "repo_lower=$repo_lower" >> $GITHUB_ENV
 
             - name: Build and push Docker image
               uses: docker/build-push-action@v5
               with:
                   context: .
                   push: true
-                  tags: ${{ github.repository }}:latest,${{ github.repository }}:${{ needs.get-version.outputs.version }}
+                  tags: ${{ env.repo_lower }}:latest,${{ env.repo_lower }}:${{ needs.get-version.outputs.version }}
                   labels: ${{ steps.meta.outputs.labels }}
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
